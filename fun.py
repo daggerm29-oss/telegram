@@ -2,17 +2,17 @@ from pyrogram import Client, filters
 import asyncio
 import time
 import random
-import os
 from groq import Groq
+from fastapi import FastAPI
+import uvicorn
 
-# --- CLOUD CONFIGURATION ---
-# The script will now securely grab these from your server's Environment Variables
-API_ID = int(os.environ.get("API_ID", 27611951)) 
-API_HASH = os.environ.get("API_HASH", "16c265ac1d31f819b7dd53ce3b3602af") 
-SESSION_STRING = os.environ.get("SESSION_STRING", "BQGlUy8ACUS4VWMDpa4ktqBAGH6PU9EkMCAfeDNzqt6Y4O9Upve0eD05M_M9MQxJdRpDUyCAcDbgvzy05swixXbDLHAuz-32duJlJkylYBKUa7VynyjexQ1Xx4J52DBT-7HLtcJpK8Gk-LZUz2tn6FZYGHzMJ6V0jY-Nmu72JEEU-PvKREpFmHxKNPLIzEdxiBQQIUzDF1cZfZCNMLfdLOyKe3wbiVq1_Igl1VOR1M1q0RFMvenWryrNHD83C-LK32y4-MU_fNqHKeO9UzU9wW-ysYUq_ysko1H11lty2vvtnZo3RGd95p68UsIg22tZpCA8HHbx99C00s92GZewvm2-MvpVQQAAAAFpXr-QAA") 
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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") 
+# --- HARDCODED CREDENTIALS ---
+API_ID = 27611951
+API_HASH = "16c265ac1d31f819b7dd53ce3b3602af"
+SESSION_STRING = "BQGlUy8AOWxxdXzi0oCJUapSG3ROsP7p_VwwPC88HVKTCdHM2_uWDMLnuSnGMMf4wO2YIayh-PDEJ06WsejiIVIBECvFfdSkMwk5mefB0xoy2ufsMFJb1s9xYbun8iGWtduhVxWMahuMjMiHSVnJLvKtlfcbGc8JC9v-qJvDYP_mIaH2ndElLP2cPJtM53GUYwDbLPmwd_CTUVt6l_4Gv7sEe9L57x1d8qgQDl1rjYYV5d_QTQB5vGS4WM8FTn4noQEpMMvbK6hAhkAVWV3gXlfdKhSaWaCk04ZtPvavu6e9sD5r0a7ZCsVG1PJL3RXgr9JnibrDJB5sjVOGag0jb_iINMD3WwAAAAFpXr-QAA"
+GROQ_API_KEY = "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"
 
-# Initialize the client using the String Session instead of a local file
+# Initialize clients
 app = Client(
     name="hacker_prank_session",
     session_string=SESSION_STRING,
@@ -21,7 +21,12 @@ app = Client(
 )
 groq_client = Groq(api_key=GROQ_API_KEY)
 
-# ... [KEEP ALL THE COMMAND FUNCTIONS EXACTLY AS THEY WERE IN THE LAST SCRIPT] ...
+# Initialize Web Service
+web_app = FastAPI()
+
+@web_app.get("/")
+def read_root():
+    return {"status": "healthy", "bot": "Ultimate Hacker & Roast Userbot is live"}
 
 # --- HELPER FUNCTIONS ---
 def get_reply_target(message):
@@ -147,7 +152,7 @@ async def matrix_sequence(client, message):
     target = get_reply_target(message)
     frames = [
         "`[SYS] SYSTEM FAILURE IN SIMULATION LAYER 7`",
-        "`01100110 01101111 01101100 01101100 01101111 01110111`",
+        "`01100110 01101111 01101100 01101100 01101101 01110111`",
         "`[DECRYPTING ENCRYPTED MATRIX FLUX LOGS]`",
         "`0x00000000 -> ERROR_BUS_RESET`",
         "`0x0000007A -> ERROR_KERNEL_DATA_INPAGE_ERROR`",
@@ -179,9 +184,7 @@ async def roast_sequence(client, message):
     
     await message.edit_text(f"`[+] Scanning last 100 messages from {target_name} for psychological weak spots...`")
 
-    # Fetch group history to filter out the target's messages
     user_messages = []
-    
     async for msg in client.get_chat_history(chat_id, limit=500):
         if len(user_messages) >= 100:
             break
@@ -200,10 +203,8 @@ async def roast_sequence(client, message):
     await asyncio.sleep(0.5)
     await message.edit_text("`[+] Connecting to Groq AI core to generate maximum emotional damage... 🔥`")
 
-    # Format the payload
     chat_logs = "\n".join(user_messages)
     
-    # Strict prompt to prevent AI from "thinking out loud"
     system_prompt = (
         "You are a savage, witty roast master. You will be provided with chat logs from a user. "
         "CRITICAL RULES: "
@@ -216,7 +217,6 @@ async def roast_sequence(client, message):
     user_prompt = f"Here are the recent group chat messages from the user named {target_name}:\n\n{chat_logs}\n\nRoast them:"
 
     try:
-        # Request the roast using the updated, fast Llama 3.1 model
         completion = groq_client.chat.completions.create(
             model="llama-3.1-8b-instant", 
             messages=[
@@ -228,14 +228,24 @@ async def roast_sequence(client, message):
         )
         
         roast_text = completion.choices[0].message.content
-        
-        # Deliver the final roast
         await message.edit_text(f"🔥 **Roasting {target_name}:**\n\n{roast_text}")
 
     except Exception as e:
         await message.edit_text(f"`[!] Groq AI Error: Could not generate roast. ({str(e)})`")
 
+# --- WEB SERVICE STARTUP LIFECYCLE ---
+@web_app.on_event("startup")
+async def startup_event():
+    # Start the Pyrogram client non-blocking inside the FastAPI loop
+    await app.start()
+    print("🟢 Pyrogram Userbot started successfully via Web Service!")
+
+@web_app.on_event("shutdown")
+async def shutdown_event():
+    await app.stop()
+    print("🔴 Pyrogram Userbot stopped.")
+
 if __name__ == "__main__":
-    print("Ultimate Hacker & Roast Userbot is running!")
-    print("Swipe left to reply to someone and type !hack, !crypto, !interpol, !melt, !matrix, or !roast")
-    app.run()
+    # Get port from platform environment (defaults to 8000 locally)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(web_app, host="0.0.0.0", port=port)
