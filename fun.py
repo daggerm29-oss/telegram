@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 import asyncio
 import time
 import random
+import os
 from groq import Groq
 from fastapi import FastAPI
 import uvicorn
