@@ -9,7 +9,7 @@ from groq import Groq
 # The script will now securely grab these from your server's Environment Variables
 API_ID = int(os.environ.get("API_ID", 27611951)) 
 API_HASH = os.environ.get("API_HASH", "16c265ac1d31f819b7dd53ce3b3602af") 
-SESSION_STRING = os.environ.get("SESSION_STRING", "BQGlUy8AOWxxdXzi0oCJUapSG3ROsP7p_VwwPC88HVKTCdHM2_uWDMLnuSnGMMf4wO2YIayh-PDEJ06WsejiIVIBECvFfdSkMwk5mefB0xoy2ufsMFJb1s9xYbun8iGWtduhVxWMahuMjMiHSVnJLvKtlfcbGc8JC9v-qJvDYP_mIaH2ndElLP2cPJtM53GUYwDbLPmwd_CTUVt6l_4Gv7sEe9L57x1d8qgQDl1rjYYV5d_QTQB5vGS4WM8FTn4noQEpMMvbK6hAhkAVWV3gXlfdKhSaWaCk04ZtPvavu6e9sD5r0a7ZCsVG1PJL3RXgr9JnibrDJB5sjVOGag0jb_iINMD3WwAAAAFpXr-QAA") 
+SESSION_STRING = os.environ.get("SESSION_STRING", "BQGlUy8ACUS4VWMDpa4ktqBAGH6PU9EkMCAfeDNzqt6Y4O9Upve0eD05M_M9MQxJdRpDUyCAcDbgvzy05swixXbDLHAuz-32duJlJkylYBKUa7VynyjexQ1Xx4J52DBT-7HLtcJpK8Gk-LZUz2tn6FZYGHzMJ6V0jY-Nmu72JEEU-PvKREpFmHxKNPLIzEdxiBQQIUzDF1cZfZCNMLfdLOyKe3wbiVq1_Igl1VOR1M1q0RFMvenWryrNHD83C-LK32y4-MU_fNqHKeO9UzU9wW-ysYUq_ysko1H11lty2vvtnZo3RGd95p68UsIg22tZpCA8HHbx99C00s92GZewvm2-MvpVQQAAAAFpXr-QAA") 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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") 
 
 # Initialize the client using the String Session instead of a local file
